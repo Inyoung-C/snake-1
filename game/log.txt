@@ -1,0 +1,22 @@
+______________
+single_game...
+>>> char ** field created
+(0)
+Snake generated: head = (13, 21). tail = (16, 21)
+Painting Snake:
+(2)
+16 21
+15 21
+14 21
+13 21
+Object Field field created
+Food generated: head = (3, 20).
+Food generated: head = (5, 19).
+Food generated: head = (16, 37).
+Food generated: head = (15, 9).
+Food generated: head = (11, 9).
+Food generated: head = (1, 27).
+Food generated: head = (11, 3).
+Food generated: head = (7, 17).
+Food generated: head = (6, 14).
+Food generated: head = (1, 37).

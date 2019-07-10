@@ -6,10 +6,10 @@
 
 
 #define X 20
-#define Y 20
+#define Y 40
 
 
-#define START_LEN 7
+#define START_LEN 3
 #define FRAME_CHANGE_IT 1 // добавить выбор рамки
 
 int single_game() {
