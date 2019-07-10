@@ -49,11 +49,16 @@ char * MULTIPLAYER_SETTINGS_MENU = "Snake v0.1\n"\
 
 int choice(const Tree * panel) {
 	clear();
-	printw("%s", panel->content);
+	if (panel->content != nullptr)
+		printw("%s", panel->content);
 	refresh();
 	
 	int x = 0, y = panel->begin;
 	int key;
+	
+	if (panel->content == nullptr) {
+		return panel->func();
+	}
 	
 	if (panel->num == 0) {
 		getch();
@@ -88,68 +93,66 @@ int choice(const Tree * panel) {
 	return (key == '\n') ? y : -1;
 }
 
+Tree initPanel(type content, int begin, size_t num, Tree * branchs, Tree * parrent, int (*func)()) {
+	Tree panel;
+	panel.content = content;
+	panel.begin   = begin;
+	panel.num     = num;
+	panel.branchs = branchs;
+	panel.parrent = parrent;
+	panel.func    = func;
+	return panel;
+}
 
 Tree initMenu() {
 	Tree menu;
-	menu.content = GENERAL_MENU;
+	menu = initPanel(GENERAL_MENU, 1, GENERAL_NUM_OF_ROWS, new Tree[GENERAL_NUM_OF_ROWS], nullptr, nullptr);
+	/*menu.content = GENERAL_MENU;
 	menu.begin   = 1; 
 	menu.num     = GENERAL_NUM_OF_ROWS;
 	menu.branchs = new Tree[menu.num];
-	menu.parrent = nullptr;
+	menu.parrent = nullptr;*/
 	
 		Tree & start_menu = menu.branchs[0];
-			start_menu.content = START_MENU;
+			start_menu = initPanel(START_MENU, 1, START_NUM_OF_ROWS, new Tree[START_NUM_OF_ROWS], &menu, nullptr);
+			/*start_menu.content = START_MENU;
 			start_menu.begin   = 1;
 			start_menu.num     = START_NUM_OF_ROWS;
 			start_menu.branchs = new Tree[start_menu.num];
-			start_menu.parrent = &menu;
+			start_menu.parrent = &menu;*/
 			
 				Tree & singleplayer_menu = start_menu.branchs[0];
-					singleplayer_menu.content = SINGLEPLAYER_MENU;
-					singleplayer_menu.begin   = 1;
-					singleplayer_menu.num     = SINGLEPLAYER_NUM_OF_ROWS;
-					singleplayer_menu.branchs = new Tree[singleplayer_menu.num];
-					singleplayer_menu.parrent = &start_menu;
+					singleplayer_menu = initPanel(SINGLEPLAYER_MENU, 1, SINGLEPLAYER_NUM_OF_ROWS, new Tree[SINGLEPLAYER_NUM_OF_ROWS], &start_menu, nullptr);
 					
 						Tree & singleplayer_play          = singleplayer_menu.branchs[0];
+							singleplayer_play = initPanel(nullptr, -1, 0, nullptr, &singleplayer_menu, single_game);
 						
 						Tree & singleplayer_settings_menu = singleplayer_menu.branchs[1];
-							singleplayer_settings_menu.content = SINGLEPLAYER_SETTINGS_MENU;
-							singleplayer_settings_menu.begin   = 1;
-							singleplayer_settings_menu.num     = SINGLEPLAYER_SETTINGS_NUM_OF_ROWS;
-							singleplayer_settings_menu.branchs = new Tree[singleplayer_settings_menu.num];
-							singleplayer_settings_menu.parrent = &singleplayer_menu;
+							singleplayer_settings_menu = initPanel(SINGLEPLAYER_SETTINGS_MENU, 1, SINGLEPLAYER_SETTINGS_NUM_OF_ROWS, new Tree[SINGLEPLAYER_SETTINGS_NUM_OF_ROWS], &singleplayer_menu, nullptr);
 				
 				
 				Tree & multiplayer_menu  = start_menu.branchs[1];
-					multiplayer_menu.content = MULTIPLAYER_MENU;
-					multiplayer_menu.begin   = 1;
-					multiplayer_menu.num     = MULTIPLAYER_NUM_OF_ROWS;
-					multiplayer_menu.branchs = new Tree[multiplayer_menu.num];
-					multiplayer_menu.parrent = &start_menu;
+					multiplayer_menu = initPanel(MULTIPLAYER_MENU, 1, MULTIPLAYER_NUM_OF_ROWS, new Tree[MULTIPLAYER_NUM_OF_ROWS], &start_menu, nullptr);
 					
 						Tree & multiplayer_play = multiplayer_menu.branchs[0];
+							multiplayer_play = initPanel(nullptr, -1, 0, nullptr, &multiplayer_menu, multi_game);
 						
 						Tree & multiplayer_settings_menu = multiplayer_menu.branchs[1];
-							multiplayer_settings_menu.content = MULTIPLAYER_SETTINGS_MENU;
-							multiplayer_settings_menu.begin   = 1;
-							multiplayer_settings_menu.num     = MULTIPLAYER_SETTINGS_NUM_OF_ROWS;
-							multiplayer_settings_menu.branchs = new Tree[multiplayer_settings_menu.num];
-							multiplayer_settings_menu.parrent = &multiplayer_menu;
+							multiplayer_settings_menu = initPanel(MULTIPLAYER_SETTINGS_MENU, 1, MULTIPLAYER_SETTINGS_NUM_OF_ROWS, new Tree[MULTIPLAYER_SETTINGS_NUM_OF_ROWS], &multiplayer_menu, nullptr);
 		
 		Tree & help_menu  = menu.branchs[1];
-			help_menu.content = HELP_MENU;
-			help_menu.begin   = -1;
-			help_menu.num     = HELP_NUM_OF_ROWS;
-			help_menu.branchs = nullptr;
-			help_menu.parrent = &menu;
+			help_menu = initPanel(HELP_MENU, -1, HELP_NUM_OF_ROWS, nullptr, &menu, nullptr);
 			
 		Tree & exit_menu  = menu.branchs[2];
-			exit_menu.content = EXIT_MENU;
-			exit_menu.begin   = 2;
-			exit_menu.num     = EXIT_NUM_OF_ROWS;
-			exit_menu.branchs = nullptr;
-			exit_menu.parrent = &menu;
+			exit_menu = initPanel(EXIT_MENU, 2, EXIT_NUM_OF_ROWS, new Tree[EXIT_NUM_OF_ROWS], &menu, nullptr);
+			
+				Tree & exit_yes = exit_menu.branchs[0];
+					exit_yes = initPanel(nullptr, -1, 0, nullptr, &exit_menu, zero_exit);
+					
+				Tree & exit_no  = exit_menu.branchs[1];
+					exit_no = initPanel(nullptr, -1, 0, nullptr, &exit_menu, minus_two);
+			
+			
 	
 	return menu;
 	
@@ -168,13 +171,16 @@ void menu() {
 	while (1) {
 		int y = choice(current_panel);
 		switch(y) {
+			case -2:
+				current_panel = &menu;
+				break;
 			case -1:
 				if (current_panel->parrent != nullptr) {
 					current_panel = current_panel->parrent;
 				}
 				break;
 			default: {
-				current_panel = &current_panel->branchs[y - 1];
+				current_panel = &current_panel->branchs[y - current_panel->begin];
 				break;
 			}
 		}
