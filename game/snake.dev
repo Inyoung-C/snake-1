@@ -11,7 +11,7 @@ ResourceIncludes=
 MakeIncludes=
 Compiler=
 CppCompiler=-std=c++11_@@_
-Linker="../../../../Program Files (x86)/Dev-Cpp/MinGW64/lib/pdcurses.a"_@@_
+Linker="../../../../../../Program Files (x86)/Dev-Cpp/MinGW64/lib/pdcurses.a"_@@_
 IsCpp=1
 Icon=
 ExeOutput=
@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
 CompilerSettings=0000000000000000000000000
-UnitCount=9
+UnitCount=10
 
 [VersionInfo]
 Major=1
@@ -121,7 +121,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit10]
-FileName=snake.cpp
+FileName=menu.h
 CompileCpp=1
 Folder=
 Compile=1
