@@ -25,11 +25,13 @@ Field::Field(size_t x, size_t y, int frame, size_t snake_len, int speed) {
 		field[i] = new char[y];
 		for (int j = 0; j < y; ++j) {
 			field[i][j] = FIELD;
-			if (frame) {
-				if (i == 0 || i + 1 == x || j == 0 || j + 1 == y) {
+			if (i == 0 || i + 1 == x || j == 0 || j + 1 == y) {
+				if (frame)
 					field[i][j] = FRAME;
-				}
+				else
+					field[i][j] = NOFRAME;
 			}
+			
 		}
 	}
 	fprintf(log, ">>> char ** field created\n");
@@ -144,6 +146,9 @@ void Field::print_field(int x, int y) {
 					break;
 				case FRAME:
 					mvaddch(i, j, '0');
+					break;
+				case NOFRAME:
+					mvaddch(i, j, '.');
 					break;
 			}
 		}
