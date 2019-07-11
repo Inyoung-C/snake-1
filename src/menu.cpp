@@ -49,14 +49,19 @@ char * MULTIPLAYER_SETTINGS_MENU = "Snake v0.1\n"\
 
 int choice(const Tree * panel) {
 	clear();
-	if (panel->content != nullptr)
+	if (panel->content != nullptr) {
 		printw("%s", panel->content);
+		fprintf(log, ">>>%s<<<\n", panel->content);
+		fflush(log);
+	}
 	refresh();
 	
 	int x = 0, y = panel->begin;
 	int key;
 	
 	if (panel->content == nullptr) {
+		fprintf(log, "return panel->func\n");
+		fflush(log);
 		return panel->func();
 	}
 	
@@ -170,9 +175,15 @@ void menu() {
 	
 	while (1) {
 		int y = choice(current_panel);
+		fprintf(log, "choice = %d\n", y);
+		fflush(log);
 		switch(y) {
 			case -2:
+				fprintf(log, "back to menu...\n");
+				fflush(log);
 				current_panel = &menu;
+				fprintf(log, "completed\n");
+				fflush(log);
 				break;
 			case -1:
 				if (current_panel->parrent != nullptr) {
