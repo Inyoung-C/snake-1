@@ -6,7 +6,7 @@
 FILE * log;
 
 int main(int argc, char** argv) {
-	log = fopen("log.txt", "a");
+	log = fopen(LOG_NAME, "a");
 	fprintf(log, "______________\n");
 	menu();
 	return 0;

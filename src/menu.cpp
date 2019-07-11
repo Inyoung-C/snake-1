@@ -38,13 +38,15 @@ char * MULTIPLAYER_MENU = "Snake v0.1\n"\
 #define MULTIPLAYER_NUM_OF_ROWS 2
 
 char * SINGLEPLAYER_SETTINGS_MENU = "Snake v0.1\n"\
-									">  Frame\n";
-#define SINGLEPLAYER_SETTINGS_NUM_OF_ROWS 1
+									">  Frame\n"\
+									"   Speed";
+#define SINGLEPLAYER_SETTINGS_NUM_OF_ROWS 2
 
 char * MULTIPLAYER_SETTINGS_MENU = "Snake v0.1\n"\
 								   ">  Change Opponent's IP\n"
-								   "   Frame\n";
-#define MULTIPLAYER_SETTINGS_NUM_OF_ROWS 2
+								   "   Frame\n"\
+								   "   Speed\n";
+#define MULTIPLAYER_SETTINGS_NUM_OF_ROWS 3
 
 
 int choice(const Tree * panel) {
@@ -109,22 +111,13 @@ Tree initPanel(type content, int begin, size_t num, Tree * branchs, Tree * parre
 	return panel;
 }
 
+
 Tree initMenu() {
 	Tree menu;
 	menu = initPanel(GENERAL_MENU, 1, GENERAL_NUM_OF_ROWS, new Tree[GENERAL_NUM_OF_ROWS], nullptr, nullptr);
-	/*menu.content = GENERAL_MENU;
-	menu.begin   = 1; 
-	menu.num     = GENERAL_NUM_OF_ROWS;
-	menu.branchs = new Tree[menu.num];
-	menu.parrent = nullptr;*/
 	
 		Tree & start_menu = menu.branchs[0];
 			start_menu = initPanel(START_MENU, 1, START_NUM_OF_ROWS, new Tree[START_NUM_OF_ROWS], &menu, nullptr);
-			/*start_menu.content = START_MENU;
-			start_menu.begin   = 1;
-			start_menu.num     = START_NUM_OF_ROWS;
-			start_menu.branchs = new Tree[start_menu.num];
-			start_menu.parrent = &menu;*/
 			
 				Tree & singleplayer_menu = start_menu.branchs[0];
 					singleplayer_menu = initPanel(SINGLEPLAYER_MENU, 1, SINGLEPLAYER_NUM_OF_ROWS, new Tree[SINGLEPLAYER_NUM_OF_ROWS], &start_menu, nullptr);
@@ -135,7 +128,12 @@ Tree initMenu() {
 						Tree & singleplayer_settings_menu = singleplayer_menu.branchs[1];
 							singleplayer_settings_menu = initPanel(SINGLEPLAYER_SETTINGS_MENU, 1, SINGLEPLAYER_SETTINGS_NUM_OF_ROWS, new Tree[SINGLEPLAYER_SETTINGS_NUM_OF_ROWS], &singleplayer_menu, nullptr);
 				
-				
+							Tree & singleplayer_settings_frame = singleplayer_settings_menu.branchs[0];
+								singleplayer_settings_frame = initPanel(nullptr, -1, 0, nullptr, &singleplayer_settings_menu, single_game_set_frame);
+							
+							Tree & singleplayer_settings_speed = singleplayer_settings_menu.branchs[1];
+								singleplayer_settings_speed = initPanel(nullptr, -1, 0, nullptr, &singleplayer_settings_menu, single_game_set_speed);
+								
 				Tree & multiplayer_menu  = start_menu.branchs[1];
 					multiplayer_menu = initPanel(MULTIPLAYER_MENU, 1, MULTIPLAYER_NUM_OF_ROWS, new Tree[MULTIPLAYER_NUM_OF_ROWS], &start_menu, nullptr);
 					
@@ -144,7 +142,16 @@ Tree initMenu() {
 						
 						Tree & multiplayer_settings_menu = multiplayer_menu.branchs[1];
 							multiplayer_settings_menu = initPanel(MULTIPLAYER_SETTINGS_MENU, 1, MULTIPLAYER_SETTINGS_NUM_OF_ROWS, new Tree[MULTIPLAYER_SETTINGS_NUM_OF_ROWS], &multiplayer_menu, nullptr);
-		
+							
+							Tree & multiplayer_settings_ip = multiplayer_settings_menu.branchs[0];
+								multiplayer_settings_ip = initPanel(nullptr, -1, 0, nullptr, &multiplayer_settings_menu, multi_game_set_ip);
+							
+							Tree & multiplayer_settings_frame = multiplayer_settings_menu.branchs[1];
+								multiplayer_settings_frame = initPanel(nullptr, -1, 0, nullptr, &multiplayer_settings_menu, multi_game_set_frame);
+							
+							Tree & multiplayer_settings_speed = multiplayer_settings_menu.branchs[2];
+								multiplayer_settings_speed = initPanel(nullptr, -1, 0, nullptr, &multiplayer_settings_menu, multi_game_set_speed);
+								
 		Tree & help_menu  = menu.branchs[1];
 			help_menu = initPanel(HELP_MENU, -1, HELP_NUM_OF_ROWS, nullptr, &menu, nullptr);
 			
