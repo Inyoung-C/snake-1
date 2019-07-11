@@ -122,7 +122,7 @@ Field::Field(size_t x, size_t y, int frame, size_t snake_len, int speed) {
 }
 
 Field::~Field() {
-	for (int i = 0; i < y; ++i) {
+	for (int i = 0; i < x; ++i) {
 		delete [] field[i];
 	}
 	delete [] field;
@@ -391,6 +391,7 @@ int Field::move() {
 			mvprintw(5, 5, "Game Over!\n");
 			refresh();
 			delay(3);
+			fprintf(log, "game over\n"); fflush(log);
 			return 1; // ÏÀÌßÒÜ ÒÅ×¨Ò!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			//menu();
 			break;

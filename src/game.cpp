@@ -31,6 +31,7 @@ int single_game() {
 	while (!field.move()) {
 		field.print_field(3, 3);
 	}
+	fprintf(log, "game over (while break)\n"); fflush(log);
 //	endwin();
 	return -2;
 }
