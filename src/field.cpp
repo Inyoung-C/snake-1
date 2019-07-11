@@ -1,6 +1,7 @@
 #include <curses.h>
 #include <cstdlib>
 #include <ctime>
+#include <queue>
 #include "field.h"
 #include "header.h"
 
@@ -8,11 +9,40 @@ bool Point::operator==(Point p) {
 	return this->x == p.x && this->y == p.y;
 }
 
+/*Point::Point(size_t a, size_t b) {
+	x = a;
+	y = b;
+}*/
 
 int foo(int a) { // ну а как еще назвать это чудо?
 	if (a > 0) return 1;
 	if (a < 0) return -1;
 	if (a = 0) return 0;
+}
+
+void new_pos(size_t & pos_x, size_t & pos_y, int change_x, int change_y, int size_x, int size_y, int frame, std::queue <Point> & twists) { // меняет координату pos на change. 
+	fprintf(log, "x: %3d -> %3d\n", pos_x, (pos_x + change_x) % (size_x - 1)); // баг из единицы попадаю в единицу (см лог)
+	fprintf(log, "y: %3d -> %3d\n", pos_y, (pos_y + change_y) % (size_y - 1));
+	int new_pos_x = (pos_x + change_x) % (size_x - 1);
+	int new_pos_y = (pos_y + change_y) % (size_y - 1);
+	Point p = {pos_x, pos_y};
+	if (new_pos_x == 0 && frame == 0) { 
+		if (pos_x > new_pos_x)
+			new_pos_x = 1;
+		else
+			new_pos_x = size_x - 3;
+		twists.push(p);
+	}
+	if (new_pos_y == 0 && frame == 0) { 
+		if (pos_y > new_pos_y)
+			new_pos_y = 1;
+		else
+			new_pos_y = size_y - 3;
+		twists.push(p); 
+	}
+	fflush(log);
+	if (change_x) pos_x = new_pos_x;
+	if (change_y) pos_y = new_pos_y;
 }
 
 Field::Field(size_t x, size_t y, int frame, size_t snake_len, int speed) {
@@ -216,7 +246,7 @@ int Field::move() {
 		}
 	}
 	
-	halfdelay(MAX_SPEED - snake.speed + 1); // переводим в десятые части секунды (требует функция).
+	//halfdelay(MAX_SPEED - snake.speed + 1); // переводим в десятые части секунды (требует функция).
 	
 	size_t old_tail_x = snake.tail.x;
 	size_t old_tail_y = snake.tail.y;
@@ -228,7 +258,9 @@ int Field::move() {
 		case 's':
 			if (direction_head == HOR) { // горизонталь - поворот
 				snake.twists.push(snake.head);
-				snake.head.x++;
+				fprintf(log, "begin\n");
+				new_pos(snake.head.x, snake.head.y, 1, 0, x, y, frame, snake.twists);
+				fprintf(log, "end\n");
 				if (field[snake.head.x][snake.head.y] == FOOD) {
 					field[snake.head.x][snake.head.y] = SNAKE;
 					field[snake.tail.x][snake.tail.y] = SNAKE;
@@ -242,12 +274,16 @@ int Field::move() {
 			else { // вертикаль - нет поворота - движение вперед
 				if (snake.twists.empty()) {
 					snake.tail.x -= foo((int)snake.tail.x - (int)snake.head.x);
-					snake.head.x -= foo((int)snake.tail.x - (int)snake.head.x);
+					
+					new_pos(snake.head.x, snake.head.y, -foo((int)snake.tail.x - (int)snake.head.x), 0, x, y, frame, snake.twists);
+					//snake.head.x -= foo((int)snake.tail.x - (int)snake.head.x);
 				}
 				else {
 					snake.tail.x -= foo((int)snake.tail.x - (int)snake.twists.front().x);
 					snake.tail.y -= foo((int)snake.tail.y - (int)snake.twists.front().y);
-					snake.head.x -= foo((int)snake.twists.back().x - (int)snake.head.x);
+					
+					new_pos(snake.head.x, snake.head.y, -foo((int)snake.twists.back().x - (int)snake.head.x), 0, x, y, frame, snake.twists);
+					//snake.head.x -= foo((int)snake.twists.back().x - (int)snake.head.x);
 				}
 			}
 			if (snake.tail == snake.twists.front()) snake.twists.pop();
@@ -257,7 +293,7 @@ int Field::move() {
 		case 'w':
 			if (direction_head == HOR) {
 				snake.twists.push(snake.head);
-				snake.head.x--;
+				new_pos(snake.head.x, snake.head.y, -1, 0, x, y, frame, snake.twists);
 				if (field[snake.head.x][snake.head.y] == FOOD) {
 					field[snake.head.x][snake.head.y] = SNAKE;
 					field[snake.tail.x][snake.tail.y] = SNAKE;
@@ -271,12 +307,16 @@ int Field::move() {
 			else { // вертикаль - нет поворота - движение вперед
 				if (snake.twists.empty()) {
 					snake.tail.x -= foo((int)snake.tail.x - (int)snake.head.x);
-					snake.head.x -= foo((int)snake.tail.x - (int)snake.head.x);
+					
+					new_pos(snake.head.x, snake.head.y, -foo((int)snake.tail.x - (int)snake.head.x), 0, x, y, frame, snake.twists);
+					//snake.head.x -= foo((int)snake.tail.x - (int)snake.head.x);
 				}
 				else {
 					snake.tail.x -= foo((int)snake.tail.x - (int)snake.twists.front().x);
 					snake.tail.y -= foo((int)snake.tail.y - (int)snake.twists.front().y);
-					snake.head.x -= foo((int)snake.twists.back().x - (int)snake.head.x);
+				
+					new_pos(snake.head.x, snake.head.y, -foo((int)snake.twists.back().x - (int)snake.head.x), 0, x, y, frame, snake.twists);
+					//snake.head.x -= foo((int)snake.twists.back().x - (int)snake.head.x);
 				}
 			}
 			if (snake.tail == snake.twists.front()) snake.twists.pop();
@@ -286,7 +326,7 @@ int Field::move() {
 		case 'd':
 			if (direction_head == VER) {
 				snake.twists.push(snake.head);
-				snake.head.y++;
+				new_pos(snake.head.x, snake.head.y, 0, 1, x, y, frame, snake.twists);
 				if (field[snake.head.x][snake.head.y] == FOOD) {
 					field[snake.head.x][snake.head.y] = SNAKE;
 					field[snake.tail.x][snake.tail.y] = SNAKE;
@@ -300,12 +340,16 @@ int Field::move() {
 			else { // горизонталь - нет поворота - движение вперед
 				if (snake.twists.empty()) {
 					snake.tail.y -= foo((int)snake.tail.y - (int)snake.head.y);
-					snake.head.y -= foo((int)snake.tail.y - (int)snake.head.y);
+					
+					new_pos(snake.head.x, snake.head.y, 0, -foo((int)snake.tail.y - (int)snake.head.y), x, y, frame, snake.twists);
+					//snake.head.y -= foo((int)snake.tail.y - (int)snake.head.y);
 				}
 				else {
 					snake.tail.x -= foo((int)snake.tail.x - (int)snake.twists.front().x);
 					snake.tail.y -= foo((int)snake.tail.y - (int)snake.twists.front().y);
-					snake.head.y -= foo((int)snake.twists.back().y - (int)snake.head.y);
+					
+					new_pos(snake.head.x, snake.head.y, 0, -foo((int)snake.twists.back().y - (int)snake.head.y), x, y, frame, snake.twists);
+					//snake.head.y -= foo((int)snake.twists.back().y - (int)snake.head.y);
 				}
 			}
 			if (snake.tail == snake.twists.front()) snake.twists.pop();
@@ -315,7 +359,7 @@ int Field::move() {
 		case 'a':
 			if (direction_head == VER) {
 				snake.twists.push(snake.head);
-				snake.head.y--;
+				new_pos(snake.head.x, snake.head.y, 0, -1, x, y, frame, snake.twists);
 				if (field[snake.head.x][snake.head.y] == FOOD) {
 					field[snake.head.x][snake.head.y] = SNAKE;
 					field[snake.tail.x][snake.tail.y] = SNAKE;
@@ -329,12 +373,16 @@ int Field::move() {
 			else { // горизонталь - нет поворота - движение вперед
 				if (snake.twists.empty()) {
 					snake.tail.y -= foo((int)snake.tail.y - (int)snake.head.y);
-					snake.head.y -= foo((int)snake.tail.y - (int)snake.head.y);
+					
+					new_pos(snake.head.x, snake.head.y, 0, -foo((int)snake.tail.y - (int)snake.head.y), x, y, frame, snake.twists);
+					//snake.head.y -= foo((int)snake.tail.y - (int)snake.head.y);
 				}
 				else {
 					snake.tail.x -= foo((int)snake.tail.x - (int)snake.twists.front().x);
 					snake.tail.y -= foo((int)snake.tail.y - (int)snake.twists.front().y);
-					snake.head.y -= foo((int)snake.twists.back().y - (int)snake.head.y);
+					
+					new_pos(snake.head.x, snake.head.y, 0, -foo((int)snake.twists.back().y - (int)snake.head.y), x, y, frame, snake.twists);
+					//snake.head.y -= foo((int)snake.twists.back().y - (int)snake.head.y);
 				}
 			}
 			if (snake.tail == snake.twists.front()) snake.twists.pop();
@@ -344,12 +392,16 @@ int Field::move() {
 			if (direction_head == VER) {
 				if (snake.twists.empty()) {
 					snake.tail.x -= foo((int)snake.tail.x - (int)snake.head.x);
-					snake.head.x -= foo((int)snake.tail.x - (int)snake.head.x);
+					
+					new_pos(snake.head.x, snake.head.y, -foo((int)snake.tail.x - (int)snake.head.x), 0, x, y, frame, snake.twists);
+					//snake.head.x -= foo((int)snake.tail.x - (int)snake.head.x);
 				}
 				else {
 					snake.tail.x -= foo((int)snake.tail.x - (int)snake.twists.front().x);
 					snake.tail.y -= foo((int)snake.tail.y - (int)snake.twists.front().y);
-					snake.head.x -= foo((int)snake.twists.back().x - (int)snake.head.x);
+					
+					new_pos(snake.head.x, snake.head.y, -foo((int)snake.twists.back().x - (int)snake.head.x), 0, x, y, frame, snake.twists);
+					//snake.head.x -= foo((int)snake.twists.back().x - (int)snake.head.x);
 				}
 				//snake.head.x -= foo((int)snake.head.x - (int)snake.twists.back().x);
 				//if (direction_tail == VER) snake.tail.x -= foo((int)snake.tail.x - (int)snake.twists.front().x);
@@ -359,12 +411,16 @@ int Field::move() {
 			else if (direction_head == HOR) {
 				if (snake.twists.empty()) {
 					snake.tail.y -= foo((int)snake.tail.y - (int)snake.head.y);
-					snake.head.y -= foo((int)snake.tail.y - (int)snake.head.y);
+					
+					new_pos(snake.head.x, snake.head.y, 0, -foo((int)snake.tail.y - (int)snake.head.y), x, y, frame, snake.twists);
+					//snake.head.y -= foo((int)snake.tail.y - (int)snake.head.y);
 				}
 				else {
 					snake.tail.x -= foo((int)snake.tail.x - (int)snake.twists.front().x);
 					snake.tail.y -= foo((int)snake.tail.y - (int)snake.twists.front().y);
-					snake.head.y -= foo((int)snake.twists.back().y - (int)snake.head.y);
+					
+					new_pos(snake.head.x, snake.head.y, 0, -foo((int)snake.twists.back().y - (int)snake.head.y), x, y, frame, snake.twists);
+					//snake.head.y -= foo((int)snake.twists.back().y - (int)snake.head.y);
 				}
 				//snake.head.y -= foo((int)snake.head.y - (int)snake.twists.back().y);
 				//if (direction_tail == VER) snake.tail.x -= foo((int)snake.tail.x - (int)snake.twists.front().x);

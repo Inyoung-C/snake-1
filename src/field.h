@@ -6,6 +6,7 @@
 #define SNAKE 1
 #define FOOD  2
 #define FRAME 3
+#define NOFRAME 4
 
 #define MAX_SPEED 10
 
@@ -27,6 +28,8 @@
 struct Point {
 	
 	bool operator==(Point p);
+	
+	//Point(size_t x, size_t y);
 	
 	size_t x;
 	size_t y;
