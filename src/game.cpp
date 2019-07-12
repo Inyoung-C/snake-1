@@ -10,7 +10,7 @@
 
 
 #define START_LEN 3
-#define FRAME_CHANGE_IT 0 // добавить выбор рамки
+#define FRAME_CHANGE_IT 1 // добавить выбор рамки
 
 
 

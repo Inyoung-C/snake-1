@@ -14,6 +14,16 @@ bool Point::operator==(Point p) {
 	y = b;
 }*/
 
+
+/* 
+			!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+							—ƒ≈Ћј“№ —“–” “”–” POINT — ѕќ ј«ј“≈Ћ≈ћ “ќ√ќ, я¬Ћя≈“—я Ћ» Ё“ј “ќ„ ј “ќ„ ќ… –ј«–џ¬ј
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+*/
+
 int foo(int a) { // ну а как еще назвать это чудо?
 	if (a > 0) return 1;
 	if (a < 0) return -1;
@@ -21,25 +31,35 @@ int foo(int a) { // ну а как еще назвать это чудо?
 }
 
 void new_pos(size_t & pos_x, size_t & pos_y, int change_x, int change_y, int size_x, int size_y, int frame, std::queue <Point> & twists) { // мен€ет координату pos на change. 
+	
+	fprintf(log, "changes: (%3d, %3d)\n", change_x, change_y);
 	fprintf(log, "x: %3d -> %3d\n", pos_x, (pos_x + change_x) % (size_x - 1)); // баг из единицы попадаю в единицу (см лог)
+	//fprintf(log, "(  %3d -> (%d + %d) %% (%d - 1))\n", pos_x, pos_x, change_x, size_x);
 	fprintf(log, "y: %3d -> %3d\n", pos_y, (pos_y + change_y) % (size_y - 1));
 	int new_pos_x = (pos_x + change_x) % (size_x - 1);
 	int new_pos_y = (pos_y + change_y) % (size_y - 1);
 	Point p = {pos_x, pos_y};
+	
 	if (new_pos_x == 0 && frame == 0) { 
-		if (pos_x > new_pos_x)
+		if (pos_x == size_x - 2)
 			new_pos_x = 1;
 		else
-			new_pos_x = size_x - 3;
+			new_pos_x = size_x - 2;
 		twists.push(p);
+		Point p1 = {new_pos_x, new_pos_y};
+		twists.push(p1);
 	}
 	if (new_pos_y == 0 && frame == 0) { 
-		if (pos_y > new_pos_y)
+		if (pos_y == size_y - 2)
 			new_pos_y = 1;
 		else
-			new_pos_y = size_y - 3;
-		twists.push(p); 
+			new_pos_y = size_y - 2;
+		twists.push(p);
+		Point p1 = {new_pos_x, new_pos_y};
+		twists.push(p1);
 	}
+	fprintf(log, "\tx: %3d -> %3d\n", pos_x, new_pos_x);
+	fprintf(log, "\ty: %3d -> %3d\n", pos_y, new_pos_y);
 	fflush(log);
 	if (change_x) pos_x = new_pos_x;
 	if (change_y) pos_y = new_pos_y;
@@ -203,7 +223,7 @@ void Field::add_food()  {
 		}
 	}
 	
-	fprintf(log, "Food generated: head = (%d, %d).\n", p.x, p.y);
+	fprintf(log, "Food generated: (%2d, %2d).\n", p.x, p.y);
 	fflush(log);
 }
 
@@ -246,12 +266,14 @@ int Field::move() {
 		}
 	}
 	
-	//halfdelay(MAX_SPEED - snake.speed + 1); // переводим в дес€тые части секунды (требует функци€).
+	halfdelay(MAX_SPEED - snake.speed + 1); // переводим в дес€тые части секунды (требует функци€).
 	
 	size_t old_tail_x = snake.tail.x;
 	size_t old_tail_y = snake.tail.y;
 	
 	field[snake.tail.x][snake.tail.y] = FIELD;
+	
+	fprintf(log, "DIRECTION_HEAD = %s\n", (direction_head == HOR ? "HOR" : "VER"));
 	
 	switch(getch()) {
 		case KEY_DOWN:
@@ -273,14 +295,19 @@ int Field::move() {
 			}
 			else { // вертикаль - нет поворота - движение вперед
 				if (snake.twists.empty()) {
-					snake.tail.x -= foo((int)snake.tail.x - (int)snake.head.x);
+					new_pos(snake.tail.x, snake.tail.y, -foo((int)snake.tail.x - (int)snake.head.x), 0, x, y, frame, snake.twists);
+					//snake.tail.x -= foo((int)snake.tail.x - (int)snake.head.x);
 					
 					new_pos(snake.head.x, snake.head.y, -foo((int)snake.tail.x - (int)snake.head.x), 0, x, y, frame, snake.twists);
 					//snake.head.x -= foo((int)snake.tail.x - (int)snake.head.x);
 				}
 				else {
-					snake.tail.x -= foo((int)snake.tail.x - (int)snake.twists.front().x);
-					snake.tail.y -= foo((int)snake.tail.y - (int)snake.twists.front().y);
+					new_pos(snake.tail.x, snake.tail.y, -foo((int)snake.tail.x - (int)snake.twists.front().x), 0, x, y, frame, snake.twists);
+					new_pos(snake.tail.x, snake.tail.y, 0, -foo((int)snake.tail.y - (int)snake.twists.front().y), x, y, frame, snake.twists);
+					//snake.tail.x -= foo((int)snake.tail.x - (int)snake.twists.front().x);
+					//snake.tail.y -= foo((int)snake.tail.y - (int)snake.twists.front().y);
+					
+					
 					
 					new_pos(snake.head.x, snake.head.y, -foo((int)snake.twists.back().x - (int)snake.head.x), 0, x, y, frame, snake.twists);
 					//snake.head.x -= foo((int)snake.twists.back().x - (int)snake.head.x);
@@ -315,6 +342,8 @@ int Field::move() {
 					snake.tail.x -= foo((int)snake.tail.x - (int)snake.twists.front().x);
 					snake.tail.y -= foo((int)snake.tail.y - (int)snake.twists.front().y);
 				
+					fprintf(log, "*** (%3d, %3d) ***\n", snake.twists.back().x, snake.twists.back().y);
+				
 					new_pos(snake.head.x, snake.head.y, -foo((int)snake.twists.back().x - (int)snake.head.x), 0, x, y, frame, snake.twists);
 					//snake.head.x -= foo((int)snake.twists.back().x - (int)snake.head.x);
 				}
@@ -348,7 +377,7 @@ int Field::move() {
 					snake.tail.x -= foo((int)snake.tail.x - (int)snake.twists.front().x);
 					snake.tail.y -= foo((int)snake.tail.y - (int)snake.twists.front().y);
 					
-					new_pos(snake.head.x, snake.head.y, 0, -foo((int)snake.twists.back().y - (int)snake.head.y), x, y, frame, snake.twists);
+					new_pos(snake.head.x, snake.head.y, 0, -foo((int)snake.twists.back().y - ((int)snake.head.y + 1)), x, y, frame, snake.twists);
 					//snake.head.y -= foo((int)snake.twists.back().y - (int)snake.head.y);
 				}
 			}
@@ -381,7 +410,8 @@ int Field::move() {
 					snake.tail.x -= foo((int)snake.tail.x - (int)snake.twists.front().x);
 					snake.tail.y -= foo((int)snake.tail.y - (int)snake.twists.front().y);
 					
-					new_pos(snake.head.x, snake.head.y, 0, -foo((int)snake.twists.back().y - (int)snake.head.y), x, y, frame, snake.twists);
+					fprintf(log, "*** (%3d, %3d) ***\n", snake.twists.back().x, snake.twists.back().y);
+					new_pos(snake.head.x, snake.head.y, 0, -foo((int)snake.twists.back().y - ((int)snake.head.y - 1)), x, y, frame, snake.twists);
 					//snake.head.y -= foo((int)snake.twists.back().y - (int)snake.head.y);
 				}
 			}
