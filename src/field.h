@@ -54,6 +54,8 @@ struct Field {
 	int move();
 	void add_food();
 	
+	char * field_copy();
+	
 private:
 	
 	Snake snake;

@@ -5,7 +5,7 @@ typedef char* type;
 
 //#include <cstddef>
 
-struct Tree { // ХОРОШО БЫ ЗАПИЛИТЬ МЕНЮ СИНГЛТОНОМ... ВПРОЧЕМ, И ТАК СОЙДЕТ.	
+struct Tree {
 	type content;
 	int begin; // координата начала выбираемого контента
 	Tree * branchs; // массив веток, идущих от этого корня

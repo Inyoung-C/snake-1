@@ -7,7 +7,7 @@ FILE * log;
 
 int main(int argc, char** argv) {
 	log = fopen(LOG_NAME, "w");
-	fprintf(log, "______________\n");
+	fprintf(log, "Menu...\n");
 	menu();
 	return 0;
 }

@@ -48,6 +48,11 @@ char * MULTIPLAYER_SETTINGS_MENU = "Snake v0.1\n"\
 								   "   Speed\n";
 #define MULTIPLAYER_SETTINGS_NUM_OF_ROWS 3
 
+char * MULTIPLAYER_PLAY_MENU = "Snake v0.1\n"\
+							   ">  Create\n"\
+							   "   Join\n";
+#define MULTIPLAYER_PLAY_NUM_OF_ROWS 2
+
 
 int choice(const Tree * panel) {
 	clear();
@@ -138,7 +143,15 @@ Tree initMenu() {
 					multiplayer_menu = initPanel(MULTIPLAYER_MENU, 1, MULTIPLAYER_NUM_OF_ROWS, new Tree[MULTIPLAYER_NUM_OF_ROWS], &start_menu, nullptr);
 					
 						Tree & multiplayer_play = multiplayer_menu.branchs[0];
-							multiplayer_play = initPanel(nullptr, -1, 0, nullptr, &multiplayer_menu, multi_game);
+							multiplayer_play = initPanel(MULTIPLAYER_PLAY_MENU, 1, MULTIPLAYER_PLAY_NUM_OF_ROWS, new Tree[MULTIPLAYER_PLAY_NUM_OF_ROWS], &multiplayer_menu, nullptr);
+							
+							Tree & multiplayer_play_create = multiplayer_play.branchs[0];
+								multiplayer_play_create = initPanel(nullptr, -1, 0, nullptr, &multiplayer_play, multi_game_create);
+							
+							Tree & multiplayer_play_join   = multiplayer_play.branchs[1];
+								multiplayer_play_join   = initPanel(nullptr, -1, 0, nullptr, &multiplayer_play, multi_game_join);
+						
+						
 						
 						Tree & multiplayer_settings_menu = multiplayer_menu.branchs[1];
 							multiplayer_settings_menu = initPanel(MULTIPLAYER_SETTINGS_MENU, 1, MULTIPLAYER_SETTINGS_NUM_OF_ROWS, new Tree[MULTIPLAYER_SETTINGS_NUM_OF_ROWS], &multiplayer_menu, nullptr);

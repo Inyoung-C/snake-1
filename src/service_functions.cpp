@@ -3,7 +3,9 @@
 #include <cstdlib>
 #include <curses.h>
 #include <time.h>
+#include <winsock2.h>
 #include "header.h"
+#include "field.h"
 
 void delay(float sec) {
 	char str[256];
@@ -129,4 +131,64 @@ int multi_game_set_speed() {
 	return -1;
 }
 
+char * get_ip(char * file_name) {
+	FILE * f = fopen(file_name, "r");
+	char * ip = (char*)calloc(256, sizeof(char));
+	if (!f) {
+		f = fopen(file_name, "w");
+		clear();
+		printw("Enter the ip: ");
+		refresh();
+		echo();
+		scanw("%s", ip);
+		noecho();
+		fprintf(f, "%s", ip);
+		fclose(f);
+	}
+	else {
+		fgets(ip, 256, f);
+		fclose(f);
+	}
+	if (strchr(ip, '\n') != NULL) {
+		*(strchr(ip, '\n')) = 0;
+	}
+	clear();
+	refresh();
+	return ip;
+}
+
+void pexit(char * message) {
+	fprintf(log, "@@@\nFatal Error: %s\n", message);
+	fprintf(log, "Error: %d\n", WSAGetLastError());
+	#ifdef RELEASE
+	clear();
+	system("pause");
+	refresh();
+	#endif
+	exit(errno);
+}
+
+void print(char * arr, size_t x, size_t y, int from_x, int from_y) {
+	for (size_t i = 0; i < x; ++i) {
+		for (size_t j = 0; j < y; ++j) {
+			switch(arr[i*x + j]) {
+				case FIELD:
+					mvaddch(i + from_x, j + from_y, ' ');
+					break;
+				case SNAKE:
+					mvaddch(i + from_x, j + from_y, '*');
+					break;
+				case FOOD:
+					mvaddch(i + from_x, j + from_y, '+');
+					break;
+				case FRAME:
+					mvaddch(i + from_x, j + from_y, '0');
+					break;
+				case NOFRAME:
+					mvaddch(i + from_x, j + from_y, '.');
+					break;
+			}
+		}
+	}
+}
 

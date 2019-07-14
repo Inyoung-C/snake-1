@@ -24,6 +24,16 @@ bool Point::operator==(Point p) {
 
 */
 
+char * Field::field_copy() {
+	static char * arr = new char[x * y];
+	for (size_t i = 0; i < x; ++i) {
+		for (size_t j = 0; j < y; ++j) {
+			arr[i*x + j] = field[i][j];
+		}
+	}
+	return arr;
+}
+
 int foo(int a) { // ну а как еще назвать это чудо?
 	if (a > 0) return 1;
 	if (a < 0) return -1;
